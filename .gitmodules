@@ -3,7 +3,7 @@
 	url = ../../DFHack/stonesense.git
 [submodule "library/xml"]
 	path = library/xml
-	url = ../../DFHack/df-structures.git
+	url = https://github.com/UncertainCat/df-structures.git
 [submodule "depends/clsocket"]
 	path = depends/clsocket
 	url = ../../DFHack/clsocket.git

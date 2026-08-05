@@ -330,7 +330,10 @@ bool estimate_underground(color_ostream &out, EmbarkTileLayout &tile, df::world_
             if (tile.elevation == 99)
                 tile.elevation = 98;
 
-            if (tile.geo_biome && (tile.geo_biome->type == 4 || tile.geo_biome->type == 5))
+            // Explicit cast: enum==int is ambiguous under C++20 reversed
+            // operator== candidates on MSVC 19.32 (VS 17.2).
+            if (tile.geo_biome && (static_cast<int>(tile.geo_biome->type) == 4 ||
+                                   static_cast<int>(tile.geo_biome->type) == 5))
             {
                 auto b_details = get_details(data, tile.biome_pos);
 

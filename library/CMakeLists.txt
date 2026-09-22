@@ -181,6 +181,7 @@ set(MODULE_SOURCES
     modules/Buildings.cpp
     modules/Burrows.cpp
     modules/Constructions.cpp
+    modules/Combat.cpp
     modules/DFSDL.cpp
     modules/DFSteam.cpp
     modules/Designations.cpp

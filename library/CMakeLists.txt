@@ -352,15 +352,27 @@ if(DFHACK_PRERELEASE)
 endif()
 
 configure_file(git-describe.cmake.in ${CMAKE_CURRENT_SOURCE_DIR}/git-describe.cmake @ONLY)
-if(EXISTS ${dfhack_SOURCE_DIR}/.git/index AND EXISTS ${dfhack_SOURCE_DIR}/.git/modules/library/xml/index)
+# Submodules and worktrees use .git pointer files; ask Git for the real indexes.
+execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --git-path index
+    WORKING_DIRECTORY "${dfhack_SOURCE_DIR}"
+    OUTPUT_VARIABLE DFHACK_GIT_INDEX OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE DFHACK_GIT_INDEX_RESULT ERROR_QUIET)
+execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --git-path index
+    WORKING_DIRECTORY "${dfhack_SOURCE_DIR}/library/xml"
+    OUTPUT_VARIABLE DFHACK_XML_GIT_INDEX OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE DFHACK_XML_GIT_INDEX_RESULT ERROR_QUIET)
+get_filename_component(DFHACK_GIT_INDEX "${DFHACK_GIT_INDEX}" ABSOLUTE BASE_DIR "${dfhack_SOURCE_DIR}")
+get_filename_component(DFHACK_XML_GIT_INDEX "${DFHACK_XML_GIT_INDEX}" ABSOLUTE BASE_DIR "${dfhack_SOURCE_DIR}/library/xml")
+if(DFHACK_GIT_INDEX_RESULT EQUAL 0 AND DFHACK_XML_GIT_INDEX_RESULT EQUAL 0
+        AND EXISTS "${DFHACK_GIT_INDEX}" AND EXISTS "${DFHACK_XML_GIT_INDEX}")
     add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/include/git-describe.h
     COMMAND ${CMAKE_COMMAND}
         -D dfhack_SOURCE_DIR:STRING=${dfhack_SOURCE_DIR}
         -D GIT_EXECUTABLE:STRING=${GIT_EXECUTABLE}
         -P ${CMAKE_CURRENT_SOURCE_DIR}/git-describe.cmake
     COMMENT "Obtaining git commit information"
-    DEPENDS ${dfhack_SOURCE_DIR}/.git/index
-        ${dfhack_SOURCE_DIR}/.git/modules/library/xml/index
+    DEPENDS "${DFHACK_GIT_INDEX}"
+        "${DFHACK_XML_GIT_INDEX}"
         ${CMAKE_CURRENT_SOURCE_DIR}/git-describe.cmake
         include/git-describe.h.in
     )
